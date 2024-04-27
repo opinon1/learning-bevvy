@@ -1,15 +1,8 @@
 use bevy::prelude::*;
 
-#[derive(Component, Debug)]
-struct Position {
-    x: f32,
-    y: f32,
-}
-
-#[derive(Component, Debug)]
+#[derive(Component)]
 struct Velocity {
-    x: f32,
-    y: f32,
+    pub value: Vec3,
 }
 
 fn main() {
@@ -21,18 +14,22 @@ fn main() {
 }
 
 fn spawn_spaceship(mut commands: Commands) {
-    commands.spawn((Position { x: 0.0, y: 0.0 }, Velocity { x: 1.0, y: 1.0 }));
+    commands.spawn((
+        SpatialBundle::default(),
+        Velocity {
+            value: Vec3::new(0.0, 0.0, 0.0),
+        },
+    ));
 }
 
-fn update_position(mut query: Query<(&mut Position, &Velocity)>) {
-    for (mut pos, vel) in query.iter_mut() {
-        pos.x += vel.x;
-        pos.y += vel.y;
+fn update_position(mut query: Query<(&mut Transform, &Velocity)>) {
+    for (mut transform, vel) in query.iter_mut() {
+        transform.translation += vel.value;
     }
 }
 
-fn print_position(query: Query<(Entity, &Position)>) {
-    for (entity, pos) in query.iter() {
-        println!("{:?} at position: {:?}", entity, pos)
+fn print_position(query: Query<(Entity, &Transform)>) {
+    for (entity, transform) in query.iter() {
+        println!("{:?} at position: {:?}", entity, transform.translation)
     }
 }
