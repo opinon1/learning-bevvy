@@ -1,35 +1,32 @@
-use bevy::prelude::*;
+mod asset_loader;
+mod asteroids;
+mod camera;
+mod debug;
+mod lighting;
+mod movement;
+mod spaceship;
 
-#[derive(Component)]
-struct Velocity {
-    pub value: Vec3,
-}
+use asset_loader::AssetLoaderPlugin;
+use asteroids::AsteroidPlugin;
+use bevy::prelude::*;
+use camera::CameraPlugin;
+use debug::DebugPlugin;
+use lighting::LightingPlugin;
+use movement::MovementPlugin;
+use spaceship::SpaceshipPlugin;
 
 fn main() {
     App::new()
-        .add_systems(Startup, spawn_spaceship)
-        .add_systems(Update, (update_position, print_position))
+        // Bevy built-ins.
+        .insert_resource(ClearColor(Color::rgb(0.1, 0.0, 0.15)))
         .add_plugins(DefaultPlugins)
-        .run()
-}
-
-fn spawn_spaceship(mut commands: Commands) {
-    commands.spawn((
-        SpatialBundle::default(),
-        Velocity {
-            value: Vec3::new(0.0, 0.0, 0.0),
-        },
-    ));
-}
-
-fn update_position(mut query: Query<(&mut Transform, &Velocity)>) {
-    for (mut transform, vel) in query.iter_mut() {
-        transform.translation += vel.value;
-    }
-}
-
-fn print_position(query: Query<(Entity, &Transform)>) {
-    for (entity, transform) in query.iter() {
-        println!("{:?} at position: {:?}", entity, transform.translation)
-    }
+        // User defined plugins.
+        .add_plugins(AssetLoaderPlugin)
+        .add_plugins(MovementPlugin)
+        .add_plugins(LightingPlugin)
+        //.add_plugins(DebugPlugin)
+        .add_plugins(SpaceshipPlugin)
+        .add_plugins(CameraPlugin)
+        .add_plugins(AsteroidPlugin)
+        .run();
 }
