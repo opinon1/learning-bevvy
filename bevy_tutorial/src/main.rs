@@ -1,7 +1,9 @@
 mod asset_loader;
 mod asteroids;
 mod camera;
+mod collider_detection;
 mod debug;
+mod despawn;
 mod lighting;
 mod movement;
 mod spaceship;
@@ -10,7 +12,9 @@ use asset_loader::AssetLoaderPlugin;
 use asteroids::AsteroidPlugin;
 use bevy::prelude::*;
 use camera::CameraPlugin;
+use collider_detection::CollitionDetectionPlugin;
 use debug::DebugPlugin;
+use despawn::DespawnPlugin;
 use lighting::LightingPlugin;
 use movement::MovementPlugin;
 use spaceship::SpaceshipPlugin;
@@ -28,5 +32,7 @@ fn main() {
         .add_plugins(SpaceshipPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(AsteroidPlugin)
+        .add_plugins(CollitionDetectionPlugin)
+        .add_plugins(DespawnPlugin)
         .run();
 }

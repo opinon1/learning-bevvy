@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 use crate::asset_loader::SceneAssets;
-use crate::movement::{Acceleration, MovementPlugin, MovingObjectBundle, Velocity};
+use crate::collider_detection::Collider;
+use crate::movement::{Acceleration, MovingObjectBundle, Velocity};
 
 const STARTING_TRANSLATION: Vec3 = Vec3::new(0.0, 0.0, -20.0);
 const SPACESHIP_SPEED: f32 = 25f32;
@@ -26,6 +27,7 @@ impl Plugin for SpaceshipPlugin {
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     commands.spawn((
         MovingObjectBundle {
+            collider: Collider::new(8f32),
             velocity: Velocity::new(Vec3::ZERO),
             acceleration: Acceleration::new(Vec3::ZERO),
             model: SceneBundle {
@@ -88,6 +90,7 @@ fn spaceship_weapon_control(
         commands.spawn((
             MovingObjectBundle {
                 velocity: Velocity::new(-transform.forward() * MISSLE_SPEED),
+                collider: Collider::new(1f32),
                 acceleration: Acceleration::new(Vec3::ZERO),
                 model: SceneBundle {
                     scene: scene_assets.missle.clone(),
