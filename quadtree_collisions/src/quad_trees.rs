@@ -1,10 +1,10 @@
-use crate::physics::Physics;
-use crate::{X_EXTENT, Y_EXTENT};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
+pub static X_EXTENT: f32 = 600.0f32;
+pub static Y_EXTENT: f32 = 300.0f32;
 const ITEM_PER_QUAD: usize = 100;
 
 pub struct QuadtreePlugin;
@@ -20,7 +20,6 @@ impl Plugin for QuadtreePlugin {
 pub struct QuadtreeItem {
     entity: Entity,
     transform: Transform,
-    physics: Physics,
 }
 
 #[derive(Component)]
@@ -136,15 +135,6 @@ impl Quadtree {
 
     // Method to query the quadtree and find entities within a certain area
     // Additional methods like split, update, etc.
-    pub fn query(&self, position: Vec3) -> Vec<QuadtreeItem> {
-        if self.children.is_some() {
-            let index = self.get_quadrant_index_for_position(position);
-            if let Some(children) = &self.children {
-                return children[index].query(position);
-            }
-        }
-        self.items.clone()
-    }
 }
 
 // Bevy system to update the quadtree

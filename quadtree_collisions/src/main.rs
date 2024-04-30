@@ -1,25 +1,27 @@
+mod physics;
 mod quad_trees;
 
+use crate::physics::{Physics, PhysicsPlugin};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
-use quad_trees::Quadtree;
+
 use rand::{thread_rng, Rng};
 use std::f32::consts::PI;
 
-use crate::{X_EXTENT, Y_EXTENT};
-use quad_trees::{QuadTreeDetect, QuadtreePlugin};
+use quad_trees::{QuadTreeDetect, QuadtreePlugin, X_EXTENT, Y_EXTENT};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(QuadtreePlugin)
+        .add_plugins(PhysicsPlugin)
         .add_systems(Startup, (spawn_particles, spawn_camera))
-        .add_systems(Update, update_physics)
         .run()
 }
 
+const MAX_SPEED: f32 = 10f32;
 const RADIUS: f32 = 1.0f32;
 
 fn spawn_particles(

@@ -1,7 +1,13 @@
 use bevy::prelude::*;
 
-use crate::quad_trees::{QuadTreeDetect, Quadtree};
-use crate::{X_EXTENT, Y_EXTENT};
+use crate::quad_trees::{QuadTreeDetect, Quadtree, X_EXTENT, Y_EXTENT};
+
+pub struct PhysicsPlugin;
+impl Plugin for PhysicsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, update_physics);
+    }
+}
 
 fn update_physics(
     mut query: Query<(Entity, &mut Transform, &mut Physics), With<QuadTreeDetect>>,
@@ -9,11 +15,6 @@ fn update_physics(
     quadtree: Res<Quadtree>,
 ) {
     //check for collisions
-    for (entity, mut transform, mut physics) in query.iter_mut() {
-        for (entity_2, mut transform_2, mut physics) in
-            quadtree.query(transform.translation).iter_mut()
-        {}
-    }
 
     //step dy
     for (_, mut transform, mut physics) in query.iter_mut() {
@@ -32,10 +33,10 @@ fn update_physics(
     }
 }
 
-#[derive(Component, Clone, Debug)]
+#[derive(Component)]
 pub struct Physics {
-    mass: f32,
-    collider_radius: f32,
-    velocity: Vec3,
-    acceleration: Vec3,
+    pub mass: f32,
+    pub collider_radius: f32,
+    pub velocity: Vec3,
+    pub acceleration: Vec3,
 }
