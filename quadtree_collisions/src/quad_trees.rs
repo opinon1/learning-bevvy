@@ -5,7 +5,7 @@ use bevy::{
 
 pub static X_EXTENT: f32 = 400.0f32;
 pub static Y_EXTENT: f32 = 400.0f32;
-const ITEM_PER_QUAD: usize = 100;
+const ITEM_PER_QUAD: usize = 10;
 
 pub struct QuadtreePlugin;
 impl Plugin for QuadtreePlugin {
@@ -128,7 +128,6 @@ impl Quadtree {
             let index = self.get_quadrant_index_for_position(item.transform.translation);
             if let Some(children) = &mut self.children {
                 children[index].insert(item.entity, item.transform);
-                return;
             }
         }
     }
@@ -137,22 +136,20 @@ impl Quadtree {
         if self.bounds.intersect(area).is_empty() {
             return;
         }
-        for item in &self.items {
-            if area.contains(item.transform.translation.xy()) {
-                found.push(item.entity);
-            }
-        }
 
         // Recursively search in the appropriate children
         if let Some(children) = &self.children {
             for child in children.iter() {
                 child.query(area, found);
             }
+        } else {
+            for item in &self.items {
+                if area.contains(item.transform.translation.xy()) {
+                    found.push(item.entity);
+                }
+            }
         }
     }
-
-    // Method to query the quadtree and find entities within a certain area
-    // Additional methods like split, update, etc.
 }
 
 // Bevy system to update the quadtree

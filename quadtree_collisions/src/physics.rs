@@ -54,7 +54,7 @@ fn update_physics(
 
         if depth >= 0.0 {
             // Calculate average restitution
-            let restitution = 0.0;
+            let restitution = 0.2;
 
             // Calculate relative velocity
             let relative_velocity = physics2.velocity - physics1.velocity;

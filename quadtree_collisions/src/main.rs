@@ -18,12 +18,13 @@ fn main() {
         .add_plugins(QuadtreePlugin)
         .add_plugins(PhysicsPlugin)
         .add_systems(Startup, (spawn_particles, spawn_camera))
+        .add_systems(Update, print_fps)
         .run()
 }
 
 const MAX_SPEED: f32 = 20f32;
-const RADIUS: f32 = 0.5f32;
-const N_ENTITIES: usize = 50_000;
+const RADIUS: f32 = 0.7f32;
+const N_ENTITIES: usize = 10_000;
 
 fn spawn_particles(
     mut commands: Commands,
@@ -65,4 +66,8 @@ fn spawn_particles(
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
+}
+
+fn print_fps(time: Res<Time>) {
+    println!("{}", 1.0 / time.delta_seconds())
 }
