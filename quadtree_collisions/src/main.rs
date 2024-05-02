@@ -21,8 +21,9 @@ fn main() {
         .run()
 }
 
-const MAX_SPEED: f32 = 10f32;
-const RADIUS: f32 = 1.0f32;
+const MAX_SPEED: f32 = 20f32;
+const RADIUS: f32 = 0.5f32;
+const N_ENTITIES: usize = 50_000;
 
 fn spawn_particles(
     mut commands: Commands,
@@ -34,7 +35,7 @@ fn spawn_particles(
     let mesh_hande = Mesh2dHandle(meshes.add(Circle::new(RADIUS)));
     let color = Color::WHITE;
 
-    for _ in 0..10_000 {
+    for _ in 0..N_ENTITIES {
         // Distribute colors evenly across the rainbow.
         commands.spawn((
             MaterialMesh2dBundle {

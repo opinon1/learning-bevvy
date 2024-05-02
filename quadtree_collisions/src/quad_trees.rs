@@ -3,8 +3,8 @@ use bevy::{
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-pub static X_EXTENT: f32 = 600.0f32;
-pub static Y_EXTENT: f32 = 300.0f32;
+pub static X_EXTENT: f32 = 400.0f32;
+pub static Y_EXTENT: f32 = 400.0f32;
 const ITEM_PER_QUAD: usize = 100;
 
 pub struct QuadtreePlugin;
@@ -132,6 +132,24 @@ impl Quadtree {
             }
         }
     }
+    pub fn query(&self, area: Rect, found: &mut Vec<Entity>) {
+        // Ignore if quadtree bounds don't intersect with the query area
+        if self.bounds.intersect(area).is_empty() {
+            return;
+        }
+        for item in &self.items {
+            if area.contains(item.transform.translation.xy()) {
+                found.push(item.entity);
+            }
+        }
+
+        // Recursively search in the appropriate children
+        if let Some(children) = &self.children {
+            for child in children.iter() {
+                child.query(area, found);
+            }
+        }
+    }
 
     // Method to query the quadtree and find entities within a certain area
     // Additional methods like split, update, etc.
@@ -160,8 +178,11 @@ fn draw_quadtree(
     quadtree: Res<Quadtree>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    draw_quadtree_node(&mut commands, &quadtree, &mut meshes, &mut materials);
+    if keyboard_input.pressed(KeyCode::KeyW) {
+        draw_quadtree_node(&mut commands, &quadtree, &mut meshes, &mut materials);
+    }
 }
 
 fn draw_quadtree_node(
@@ -171,13 +192,11 @@ fn draw_quadtree_node(
     materials: &mut Assets<ColorMaterial>,
 ) {
     let color = Color::WHITE;
-    let outline_thickness = 0.2; // Thickness of the outline
+    let outline_thickness = 0.4; // Thickness of the outline
 
     // Coordinates for the corners of the quadtree node
-    let min_x = node.bounds.min.x;
-    let max_x = node.bounds.max.x;
-    let min_y = node.bounds.min.y;
-    let max_y = node.bounds.max.y;
+    let x = (node.bounds.min.x + node.bounds.max.x) / 2.0;
+    let y = (node.bounds.min.y + node.bounds.max.y) / 2.0;
     let width = node.bounds.width();
     let height = node.bounds.height();
 
@@ -195,37 +214,14 @@ fn draw_quadtree_node(
         ));
     };
 
-    // Top border
-    create_outline(
-        width,
-        outline_thickness,
-        (min_x + max_x) / 2.0,
-        max_y - outline_thickness / 2.0,
-    );
-    // Bottom border
-    create_outline(
-        width,
-        outline_thickness,
-        (min_x + max_x) / 2.0,
-        min_y + outline_thickness / 2.0,
-    );
-    // Left border
-    create_outline(
-        outline_thickness,
-        height,
-        min_x + outline_thickness / 2.0,
-        (min_y + max_y) / 2.0,
-    );
     // Right border
-    create_outline(
-        outline_thickness,
-        height,
-        max_x - outline_thickness / 2.0,
-        (min_y + max_y) / 2.0,
-    );
-
     // Recursively draw children if they exist
     if let Some(children) = &node.children {
+        //vertical line:
+
+        create_outline(outline_thickness, height, x, y);
+        create_outline(width, outline_thickness, x, y);
+
         for child in children.iter() {
             draw_quadtree_node(commands, child, meshes, materials);
         }
