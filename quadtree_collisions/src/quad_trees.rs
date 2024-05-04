@@ -5,7 +5,7 @@ use bevy::{
 
 pub static X_EXTENT: f32 = 400.0f32;
 pub static Y_EXTENT: f32 = 400.0f32;
-const ITEM_PER_QUAD: usize = 10;
+const ITEM_PER_QUAD: usize = 100;
 
 pub struct QuadtreePlugin;
 impl Plugin for QuadtreePlugin {

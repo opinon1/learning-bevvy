@@ -22,9 +22,9 @@ fn main() {
         .run()
 }
 
-const MAX_SPEED: f32 = 20f32;
-const RADIUS: f32 = 0.7f32;
-const N_ENTITIES: usize = 10_000;
+const MAX_SPEED: f32 = 100f32;
+const RADIUS: f32 = 2f32;
+const N_ENTITIES: usize = 1_000;
 
 fn spawn_particles(
     mut commands: Commands,
@@ -57,7 +57,7 @@ fn spawn_particles(
                     rgen.gen_range(-MAX_SPEED..MAX_SPEED),
                     0.0,
                 ),
-                acceleration: Vec3::ZERO,
+                acceleration: Vec3::new(0.0, 0.0, 0.0),
             },
             QuadTreeDetect,
         ));
