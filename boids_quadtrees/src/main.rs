@@ -23,7 +23,7 @@ fn main() {
         .run()
 }
 
-const N_ENTITIES: usize = 1_000;
+const N_ENTITIES: usize = 10_000;
 
 fn spawn_particles(
     mut commands: Commands,
@@ -32,7 +32,7 @@ fn spawn_particles(
 ) {
     let mut rgen = thread_rng();
 
-    let mesh_hande = Mesh2dHandle(meshes.add(Rectangle::new(5.0, 10.0)));
+    let mesh_hande = Mesh2dHandle(meshes.add(Rectangle::new(2.0, 5.0)));
     let color = Color::WHITE;
 
     for _ in 0..N_ENTITIES {
