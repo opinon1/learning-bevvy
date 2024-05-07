@@ -18,6 +18,8 @@ impl Plugin for BoidPlugin {
 
 fn update_boid(mut query: Query<(Entity, &Boid, &mut Transform)>) {
     for (_, boid, mut transform) in query.iter_mut() {
+        //let alighn = Quat::z
+
         let speed = transform.up() * boid.speed;
         transform.translation -= speed;
 
