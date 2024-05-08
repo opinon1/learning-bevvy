@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::quadtree::{X_EXTENT, Y_EXTENT};
+use crate::quadtree::{Quadtree, X_EXTENT, Y_EXTENT};
 const LOOK_DIST: f32 = 30f32;
 
 #[derive(Component)]
@@ -16,12 +16,41 @@ impl Plugin for BoidPlugin {
     }
 }
 
-fn update_boid(mut query: Query<(Entity, &Boid, &mut Transform)>) {
+fn update_boid(
+    mut query: Query<(Entity, &Boid, &mut Transform)>,
+    quadtree: Res<Quadtree>,
+    time: Res<Time>,
+) {
+    //update angle:
     for (_, boid, mut transform) in query.iter_mut() {
-        //let alighn = Quat::z
+        let padding = 10.0;
 
+        let mut transforms: Vec<Transform> = Vec::new();
+
+        let area = Rect::new(
+            transform.translation.x - padding,
+            transform.translation.y - padding,
+            transform.translation.x + padding,
+            transform.translation.y + padding,
+        );
+        quadtree.query(area, &mut transforms);
+
+        let length = (transforms.len() - 1) as f32;
+        let mut average = Quat::from_xyzw(0.0, 0.0, 0.0, 0.0);
+        for transform_2 in transforms.iter() {
+            if *transform != *transform_2 {
+                average.z += transform_2.rotation.z;
+                average.w += transform_2.rotation.w;
+            }
+        }
+        transform.rotation.z += average.z / length * time.delta_seconds();
+        transform.rotation.w += average.w / length * time.delta_seconds();
+    }
+
+    //update pos
+    for (_, boid, mut transform) in query.iter_mut() {
         let speed = transform.up() * boid.speed;
-        transform.translation -= speed;
+        transform.translation -= speed * time.delta_seconds();
 
         if transform.translation.x.abs() > X_EXTENT {
             transform.translation.x *= -1.0;

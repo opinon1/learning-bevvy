@@ -53,7 +53,7 @@ fn spawn_particles(
             QuadTreeDetect,
             Boid {
                 rotation_speed: 1f32,
-                speed: 1f32,
+                speed: 30f32,
             },
         ));
     }

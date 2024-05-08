@@ -130,7 +130,7 @@ impl Quadtree {
             }
         }
     }
-    pub fn query(&self, area: Rect, found: &mut Vec<Entity>) {
+    pub fn query(&self, area: Rect, found: &mut Vec<Transform>) {
         // Ignore if quadtree bounds don't intersect with the query area
         if self.bounds.intersect(area).is_empty() {
             return;
@@ -144,7 +144,7 @@ impl Quadtree {
         } else {
             for item in &self.items {
                 if area.contains(item.transform.translation.xy()) {
-                    found.push(item.entity);
+                    found.push(item.transform);
                 }
             }
         }
