@@ -3,16 +3,20 @@ use bevy::{
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-pub static X_EXTENT: f32 = 400.0f32;
+pub static X_EXTENT: f32 = 600.0f32;
 pub static Y_EXTENT: f32 = 400.0f32;
 const ITEM_PER_QUAD: usize = 100;
 
 pub struct QuadtreePlugin;
 impl Plugin for QuadtreePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Quadtree::new(Rect::default(), ITEM_PER_QUAD))
-            .add_systems(PreUpdate, (clean_quadtree, update_quadtree_system))
-            .add_systems(Update, draw_quadtree);
+        app.insert_resource(Quadtree::new(
+            Rect::default(),
+            ITEM_PER_QUAD,
+            Vec3::default(),
+        ))
+        .add_systems(PreUpdate, (clean_quadtree, update_quadtree_system))
+        .add_systems(Update, draw_quadtree);
     }
 }
 
@@ -31,22 +35,23 @@ pub struct Quadtree {
     capacity: usize,                      // Maximum number of items before splitting
     items: Vec<QuadtreeItem>,             // Items stored in this node
     children: Option<[Box<Quadtree>; 4]>, // Child quadtrees
+    center: Vec3,
 }
 
 impl Quadtree {
-    fn new(bounds: Rect, capacity: usize) -> Self {
+    fn new(bounds: Rect, capacity: usize, center: Vec3) -> Self {
         Self {
             bounds,
             capacity,
             items: Vec::new(),
             children: None,
+            center,
         }
     }
 
     // Method to insert an entity into the quadtree
     pub fn insert(&mut self, entity: Entity, transform: Transform) {
         if !self.point_in_bounds(transform.translation) {
-            println!("shouldnt_run");
             // Position is outside the bounds of this quadtree node
             return;
         }
@@ -99,26 +104,63 @@ impl Quadtree {
     }
 
     fn split(&mut self) {
-        let mid_x = self.bounds.min.x + self.bounds.width() / 2.0;
-        let mid_y = self.bounds.min.y + self.bounds.height() / 2.0;
-
         // Create and assign the four child quads based on the midpoint
         self.children = Some([
             Box::new(Quadtree::new(
-                Rect::new(self.bounds.min.x, mid_y, mid_x, self.bounds.max.y),
+                Rect::new(
+                    self.bounds.min.x,
+                    self.center.y,
+                    self.center.x,
+                    self.bounds.max.y,
+                ),
                 self.capacity,
+                Vec3::new(
+                    (self.bounds.min.x + self.center.x) / 2.0,
+                    (self.center.y + self.bounds.max.y) / 2.0,
+                    0.0,
+                ),
             )),
             Box::new(Quadtree::new(
-                Rect::new(self.bounds.min.x, self.bounds.min.y, mid_x, mid_y),
+                Rect::new(
+                    self.bounds.min.x,
+                    self.bounds.min.y,
+                    self.center.x,
+                    self.center.y,
+                ),
                 self.capacity,
+                Vec3::new(
+                    (self.bounds.min.x + self.center.x) / 2.0,
+                    (self.bounds.min.y + self.center.y) / 2.0,
+                    0.0,
+                ),
             )),
             Box::new(Quadtree::new(
-                Rect::new(mid_x, self.bounds.min.y, self.bounds.max.x, mid_y),
+                Rect::new(
+                    self.center.x,
+                    self.bounds.min.y,
+                    self.bounds.max.x,
+                    self.center.y,
+                ),
                 self.capacity,
+                Vec3::new(
+                    (self.bounds.max.x + self.center.x) / 2.0,
+                    (self.bounds.min.y + self.center.y) / 2.0,
+                    0.0,
+                ),
             )),
             Box::new(Quadtree::new(
-                Rect::new(mid_x, mid_y, self.bounds.max.x, self.bounds.max.y),
+                Rect::new(
+                    self.center.x,
+                    self.center.y,
+                    self.bounds.max.x,
+                    self.bounds.max.y,
+                ),
                 self.capacity,
+                Vec3::new(
+                    (self.bounds.max.x + self.center.x) / 2.0,
+                    (self.center.y + self.bounds.max.y) / 2.0,
+                    0.0,
+                ),
             )),
         ]);
 
@@ -150,6 +192,15 @@ impl Quadtree {
             }
         }
     }
+    pub fn huntsman(&self, grav: &mut Vec<(f32, Vec3)>) {
+        if let Some(children) = &self.children {
+            for child in children {
+                child.huntsman(grav);
+            }
+        } else {
+            grav.push((self.items.len() as f32, self.center))
+        }
+    }
 }
 
 // Bevy system to update the quadtree
@@ -160,6 +211,7 @@ fn update_quadtree_system(
     *quadtree = Quadtree::new(
         Rect::new(-X_EXTENT, -Y_EXTENT, X_EXTENT, Y_EXTENT),
         ITEM_PER_QUAD,
+        Vec3::ZERO,
     );
 
     for (entity, transform) in query.iter() {

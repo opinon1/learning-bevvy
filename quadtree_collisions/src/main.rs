@@ -22,8 +22,8 @@ fn main() {
         .run()
 }
 
-const MAX_SPEED: f32 = 100f32;
-const RADIUS: f32 = 2f32;
+const MAX_SPEED: f32 = 500f32;
+const RADIUS: f32 = 1f32;
 const N_ENTITIES: usize = 10_000;
 
 fn spawn_particles(
