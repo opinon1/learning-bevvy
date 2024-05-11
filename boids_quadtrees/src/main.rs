@@ -32,7 +32,7 @@ fn spawn_particles(
 ) {
     let mut rgen = thread_rng();
 
-    let mesh_hande = Mesh2dHandle(meshes.add(Rectangle::new(2.0, 5.0)));
+    let mesh_hande = Mesh2dHandle(meshes.add(Rectangle::new(1.0, 2.0)));
     let color = Color::WHITE;
 
     for _ in 0..N_ENTITIES {
@@ -52,7 +52,7 @@ fn spawn_particles(
             },
             QuadTreeDetect,
             Boid {
-                rotation_speed: 1f32,
+                rotation_speed: 3f32,
                 speed: 30f32,
             },
         ));

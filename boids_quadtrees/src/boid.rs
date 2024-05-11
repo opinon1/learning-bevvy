@@ -21,9 +21,10 @@ fn update_boid(
     quadtree: Res<Quadtree>,
     time: Res<Time>,
 ) {
+    let deltasec = time.delta_seconds();
     //update angle:
     for (_, boid, mut transform) in query.iter_mut() {
-        let padding = 10.0;
+        let padding = 5.0;
 
         let mut transforms: Vec<Transform> = Vec::new();
 
@@ -35,16 +36,22 @@ fn update_boid(
         );
         quadtree.query(area, &mut transforms);
 
-        let length = (transforms.len() - 1) as f32;
-        let mut average = Quat::from_xyzw(0.0, 0.0, 0.0, 0.0);
-        for transform_2 in transforms.iter() {
-            if *transform != *transform_2 {
-                average.z += transform_2.rotation.z;
-                average.w += transform_2.rotation.w;
+        let length = transforms.len();
+
+        if length > 1 {
+            let length = (length - 1) as f32;
+
+            let mut rot = 0.0;
+
+            for transform_2 in transforms.iter() {
+                if *transform != *transform_2 {
+                    rot += transform_2.rotation.z;
+                }
             }
+            let rotation = (rot / length) - transform.rotation.z;
+
+            transform.rotate_z(rotation * boid.rotation_speed * deltasec);
         }
-        transform.rotation.z += average.z / length * time.delta_seconds();
-        transform.rotation.w += average.w / length * time.delta_seconds();
     }
 
     //update pos
